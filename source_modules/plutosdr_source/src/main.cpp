@@ -459,11 +459,12 @@ private:
             iio_buffer_refill(rxbuf);
 
             // Get buffer pointer
-            int16_t* buf = (int16_t*)iio_buffer_first(rxbuf, rx0_i);
+            int8_t* buf = (int8_t*)iio_buffer_first(rxbuf, rx0_i);
             if (!buf) { break; }
 
             // Convert samples to CF32
-            volk_16i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
+            //volk_16i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
+            volk_8i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
 
             // Send out the samples
             if (!_this->stream.swap(blockSize)) { break; };
