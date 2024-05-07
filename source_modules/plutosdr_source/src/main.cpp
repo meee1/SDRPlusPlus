@@ -432,7 +432,7 @@ private:
 
     static void worker(void* ctx) {
         PlutoSDRSourceModule* _this = (PlutoSDRSourceModule*)ctx;
-        int blockSize = _this->samplerate / 20.0f;
+        int blockSize = 1000000;//_this->samplerate / 20.0f;
 
         // Acquire channels
         iio_channel* rx0_i = iio_device_find_channel(_this->dev, "voltage0", 0);
@@ -453,18 +453,32 @@ private:
             return;
         }
 
+        ptrdiff_t p_inc;
+        p_inc = iio_buffer_step(rxbuf);
+
         // Receive loop
         while (true) {
             // Read samples
             iio_buffer_refill(rxbuf);
 
-            // Get buffer pointer
-            int8_t* buf = (int8_t*)iio_buffer_first(rxbuf, rx0_i);
-            if (!buf) { break; }
+            if(p_inc == 2) 
+            {
+                // Get buffer pointer
+                int8_t* buf = (int8_t*)iio_buffer_first(rxbuf, rx0_i);
+                if (!buf) { break; }
 
-            // Convert samples to CF32
-            //volk_16i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
-            volk_8i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 256.0f, blockSize * 2);
+                // Convert samples to CF32
+                volk_8i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 256.0f, blockSize * 2);
+            }
+            else if (p_inc == 4) 
+            {
+               // Get buffer pointer
+                int16_t* buf = (int16_t*)iio_buffer_first(rxbuf, rx0_i);
+                if (!buf) { break; }
+
+                // Convert samples to CF32
+                volk_16i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
+            }
 
             // Send out the samples
             if (!_this->stream.swap(blockSize)) { break; };
