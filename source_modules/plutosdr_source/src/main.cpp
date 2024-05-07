@@ -475,7 +475,7 @@ private:
 
             // Convert samples to CF32
             //volk_16i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
-            volk_8i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 32768.0f, blockSize * 2);
+            volk_8i_s32f_convert_32f((float*)_this->stream.writeBuf, buf, 256.0f, blockSize * 2);
 
             // Send out the samples
             if (!_this->stream.swap(blockSize)) { break; };
