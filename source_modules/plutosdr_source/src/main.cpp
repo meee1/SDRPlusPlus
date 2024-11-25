@@ -432,7 +432,10 @@ private:
 
     static void worker(void* ctx) {
         PlutoSDRSourceModule* _this = (PlutoSDRSourceModule*)ctx;
-        int blockSize = 1000000;//_this->samplerate / 20.0f;
+        int blockSize = _this->samplerate / 20.0f;
+
+        if(_this->samplerate > 20000000)
+            blockSize = 1000000;
 
         // Acquire channels
         iio_channel* rx0_i = iio_device_find_channel(_this->dev, "voltage0", 0);
